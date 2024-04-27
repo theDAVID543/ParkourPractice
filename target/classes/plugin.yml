@@ -1,0 +1,8 @@
+name: ParkourPractice
+version: '1.0-SNAPSHOT'
+main: the.david.Main
+api-version: '1.20'
+commands:
+  parkourpractice:
+    aliases: pp
+    permission: op
