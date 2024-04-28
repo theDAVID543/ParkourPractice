@@ -8,13 +8,14 @@ import the.david.Main;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 public class DataHandler {
     static File parkourSetupDataFile;
     static FileConfiguration parkourSetupDataConfig;
     public static void createCustomConfig(){
-        parkourSetupDataFile = new File(Main.instance.getDataFolder(), "ParkourSetupData.yml");
+        parkourSetupDataFile = new File(Main.instance.getDataFolder(), "ParkourData.yml");
         if(!parkourSetupDataFile.exists()){
             parkourSetupDataFile.getParentFile().mkdirs();
             try{
@@ -37,9 +38,21 @@ public class DataHandler {
             e.printStackTrace();
         }
     }
+    public static void setString(String path, String value){
+        parkourSetupDataConfig.set(path, value);
+        saveDataFile();
+    }
     public static void setLocation(String path, Location location){
         parkourSetupDataConfig.set(path, location);
         saveDataFile();
+    }
+    public static void setIntegerList(String path, List<Integer> list){
+        parkourSetupDataConfig.set(path, list);
+        saveDataFile();
+    }
+
+    public static String getString(String path){
+        return parkourSetupDataConfig.getString(path);
     }
     public static Set<String> getKeys(String path){
         if(parkourSetupDataConfig.getConfigurationSection(path) == null){
@@ -50,5 +63,8 @@ public class DataHandler {
     }
     public static Location getLocation(String path){
         return parkourSetupDataConfig.getLocation(path);
+    }
+    public static List<Integer> getIntegerList(String path){
+        return parkourSetupDataConfig.getIntegerList(path);
     }
 }

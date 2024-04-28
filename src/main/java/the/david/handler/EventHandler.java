@@ -3,6 +3,7 @@ package the.david.handler;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
@@ -125,11 +126,19 @@ public class EventHandler implements Listener {
             Location steppedLocation = e.getClickedBlock().getLocation().toBlockLocation();
             if(ParkourLocationManager.parkourPressures.containsKey(steppedLocation)){
                 ParkourLocation parkourLocation = ParkourLocationManager.parkourPressures.get(steppedLocation);
-                parkourPlayer.playingParkourID = parkourLocation.parkourID;
+                parkourPlayer.playingParkourID = parkourLocation.getParkourID();
                 parkourPlayer.selectedSubParkourID = parkourLocation.getSteppedPressureSubParkourID(steppedLocation);
+                String messsageString = parkourLocation.getParkourMessage(parkourPlayer.selectedSubParkourID);
+                if(messsageString != null){
+                    Component message = MiniMessage.miniMessage().deserialize(messsageString);
+                    player.sendMessage(message);
+                }
                 player.sendActionBar(
                         Component.text("已選擇跑酷 " + parkourPlayer.playingParkourID + "-" + parkourPlayer.selectedSubParkourID).color(NamedTextColor.BLUE)
                 );
+            }else if(ParkourLocationManager.finishLocations.containsKey(steppedLocation)){
+                ParkourLocation parkourLocation = ParkourLocationManager.finishLocations.get(steppedLocation);
+                parkourPlayer.addFinishedParkourID(parkourLocation.getParkourID());
             }
         }
     }

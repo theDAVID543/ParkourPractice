@@ -17,12 +17,14 @@ public class ParkourLocation {
         configPath = "parkourLocations." + parkourID;
         loadData();
     }
-    public int parkourID;
+    int parkourID;
+    ParkourDifficulty difficulty;
     String configPath;
     Location chooseMethodLocation;
     Map<Integer, Location> subParkourLocations = new HashMap<>();
     Map<Integer, Location> parkourPressureLocations = new HashMap<>();
     Location finishLocation;
+    Map<Integer, String> subParkourMessages = new HashMap<>();
 
     void loadData(){
         Set<String> pressureIDs = DataHandler.getKeys(configPath + ".Pressure");
@@ -39,16 +41,49 @@ public class ParkourLocation {
             subParkours.forEach(subParkour -> {
                 Location subParkourLocation = DataHandler.getLocation(configPath + ".Parkour." + subParkour);
                 subParkourLocations.put(Integer.valueOf(subParkour), subParkourLocation);
-                DebugOutputHandler.sendDebugOutput("SubParkour " + Integer.valueOf(subParkour) + " :" + subParkourLocation);
+                DebugOutputHandler.sendDebugOutput("SubParkour " + Integer.valueOf(subParkour) + " : " + subParkourLocation);
             });
+        }
+        Set<String> subParkourMessages = DataHandler.getKeys(configPath + ".Message");
+        if(subParkourMessages != null){
+            subParkourMessages.forEach(subParkourID -> {
+                String message = DataHandler.getString(configPath + ".Message." + subParkourID);
+                this.subParkourMessages.put(Integer.valueOf(subParkourID), message);
+                DebugOutputHandler.sendDebugOutput("Message " + Integer.valueOf(subParkourID) + " : " + message);
+            });
+        }
+        Location finishLocation = DataHandler.getLocation(configPath + ".FinishPressure");
+        if(finishLocation != null){
+            this.finishLocation = finishLocation;
+            ParkourLocationManager.addFinishPressure(this, finishLocation);
+            DebugOutputHandler.sendDebugOutput("FinishPressure : " + finishLocation);
         }
     }
 
-    public Location getChooseMethodLocation(){
-        return chooseMethodLocation;
+    public void setDifficulty(ParkourDifficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+    public void setParkourMessage(int subParkour, String parkourMessage) {
+        subParkourMessages.put(subParkour, parkourMessage);
+        DataHandler.setString(configPath + ".Message." + subParkour, parkourMessage);
     }
     public void setFinishLocation(Location finishLocation){
         this.finishLocation = finishLocation;
+        ParkourLocationManager.addFinishPressure(this, finishLocation);
+        DataHandler.setLocation(configPath + ".FinishPressure", finishLocation);
+    }
+
+    public ParkourDifficulty getDifficulty() {
+        return difficulty;
+    }
+    public String getParkourMessage(int subParkour) {
+        return subParkourMessages.get(subParkour);
+    }
+    public int getParkourID(){
+        return parkourID;
+    }
+    public Location getChooseMethodLocation(){
+        return chooseMethodLocation;
     }
     public Location getParkourPressureLocation(int subParkourID){
         return parkourPressureLocations.get(subParkourID);

@@ -7,10 +7,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
-import the.david.Main;
-import the.david.command.setup.SetupChooseLocation;
-import the.david.command.setup.SetupChoosePressure;
-import the.david.command.setup.SetupParkourLocation;
+import the.david.command.info.ParkourInfo;
+import the.david.command.setup.*;
 import the.david.command.teleport.TeleportParkour;
 import the.david.impl.Pair;
 
@@ -22,9 +20,13 @@ public class CommandManager implements CommandExecutor {
         subCommands.put("setup init {parkourID} (toCenter)", new SetupChooseLocation());
         subCommands.put("setup pressure {parkourID} {SubParkourID}", new SetupChoosePressure());
         subCommands.put("setup parkour {parkourID} {SubParkourID} (resetYaw)", new SetupParkourLocation());
+        subCommands.put("setup message {parkourID} {SubParkourID} {message}", new SetupParkourMessage());
+        subCommands.put("setup finish {parkourID}", new SetupFinishPressure());
+        subCommands.put("setup difficulty {parkourID} {difficulty}", new SetupDifficulty());
         subCommands.put("teleport {parkourID} (SubParkourID)", new TeleportParkour());
+        subCommands.put("info", new ParkourInfo());
     }
-    private final Map<String, SubCommand> subCommands = new HashMap<>();
+    public static final Map<String, SubCommand> subCommands = new HashMap<>();
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
         if(!(sender instanceof Player)){

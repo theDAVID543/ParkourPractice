@@ -12,12 +12,16 @@ import java.util.Set;
 public class ParkourLocationManager{
     static Map<Integer, ParkourLocation> parkourLocations = new HashMap<>();
     public static Map<Location, ParkourLocation> parkourPressures = new HashMap<>();
+    public static Map<Location, ParkourLocation> finishLocations = new HashMap<>();
     public static ParkourLocation getParkourLocation(int id){
         return parkourLocations.get(id);
     }
     public static void addParkourLocation(int id, Location chooseMethodLocation){
         parkourLocations.put(id, new ParkourLocation(chooseMethodLocation, id));
         DataHandler.setLocation("parkourLocations." + id + ".ChooseMethodLocation", chooseMethodLocation);
+    }
+    public static void addFinishPressure(ParkourLocation parkourLocation, Location finishPressureLocation){
+        finishLocations.put(finishPressureLocation, parkourLocation);
     }
     public static void loadParkourLocations(){
         Set<String> parkourLocations = DataHandler.getKeys("parkourLocations");

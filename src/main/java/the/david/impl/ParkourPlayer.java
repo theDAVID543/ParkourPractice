@@ -9,7 +9,13 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
+import the.david.handler.DataHandler;
 import the.david.manager.ParkourLocationManager;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ParkourPlayer{
     Player player;
@@ -18,8 +24,15 @@ public class ParkourPlayer{
     BossBar bossBar;
     public int playingParkourID;
     public int selectedSubParkourID;
+    Set<Integer> finishedParkourIDs = new HashSet<>();
+    String configPath;
     public ParkourPlayer(Player player){
         this.player = player;
+        configPath = "ParkourPlayers." + player.getUniqueId();
+        loadData();
+    }
+    void loadData(){
+        finishedParkourIDs = new HashSet<>(DataHandler.getIntegerList(configPath + ".FinishedParkour"));
     }
     public void enterPractice(Location checkpointLocation){
         inPractice = true;
@@ -61,6 +74,14 @@ public class ParkourPlayer{
         }
         player.teleport(location);
         player.sendActionBar(Component.text("已傳送至跑酷 " + playingParkourID + "-" + selectedSubParkourID).color(NamedTextColor.GREEN));
+    }
+    public Set<Integer> getFinishedParkourIDs(){
+        return finishedParkourIDs;
+    }
+    public void addFinishedParkourID(int id){
+        finishedParkourIDs.add(id);
+        List<Integer> list = new ArrayList<>(finishedParkourIDs);
+        DataHandler.setIntegerList(configPath + ".FinishedParkour", list);
     }
     void performCommandAsOp(String command){
         boolean isOp = player.isOp();
