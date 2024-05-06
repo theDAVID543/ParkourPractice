@@ -6,6 +6,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.entity.Player;
 import the.david.command.SubCommand;
 import the.david.impl.ParkourPlayer;
+import the.david.manager.ParkourLocationManager;
 import the.david.manager.PlayerManager;
 
 import java.util.Map;
@@ -20,9 +21,10 @@ public class ParkourInfo implements SubCommand {
         Set<Integer> finishedParkour = parkourPlayer.getFinishedParkourIDs();
         if(finishedParkour != null){
             for(Integer parkourID : finishedParkour){
-                component = component.append(Component.text(" " + parkourID + ",").color(TextColor.color(166,240,163)));
+                component = component.append(Component.text(" " + parkourID + ",").color(ParkourLocationManager.getParkourIdColor(parkourID)));
             }
         }
+        component = component.appendNewline().append(Component.text("跑酷得分: " + parkourPlayer.getParkourScore()).color(TextColor.color(242, 255, 61)));
         player.sendMessage(component);
     }
 }

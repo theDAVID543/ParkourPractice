@@ -7,6 +7,7 @@ import the.david.command.TabCompleteManager;
 import the.david.handler.DataHandler;
 import the.david.handler.EventHandler;
 import the.david.manager.ParkourLocationManager;
+import the.david.manager.PlayerManager;
 
 import static the.david.manager.PlayerManager.unsetAllParkourPlayers;
 
@@ -29,6 +30,7 @@ public final class Main extends JavaPlugin {
         Bukkit.getPluginCommand("parkourpractice").setTabCompleter(tabCompleteManager);
         DataHandler.createCustomConfig();
         ParkourLocationManager.loadParkourLocations();
+        PlayerManager.loadAllParkourPlayers();
     }
 
     @Override

@@ -2,12 +2,14 @@ package the.david.handler;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -56,10 +58,13 @@ public class EventHandler implements Listener {
                         ItemMeta leavePracticeItemMeta = leavePracticeItem.getItemMeta();
                         leavePracticeItemMeta.displayName(Component.text("離開練習模式").decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false).color(NamedTextColor.RED));
                         leavePracticeItem.setItemMeta(leavePracticeItemMeta);
+                        int handSlot = player.getInventory().getHeldItemSlot();
+                        player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
                         new BukkitRunnable(){
                             @Override
                             public void run() {
-                                player.getInventory().setItemInMainHand(leavePracticeItem);
+//                                player.getInventory().setItemInMainHand(leavePracticeItem);
+                                player.getInventory().setItem(handSlot, leavePracticeItem);
                             }
                         }.runTaskLaterAsynchronously(plugin, 1L);
                     }
@@ -85,24 +90,7 @@ public class EventHandler implements Listener {
                     return;
                 }
                 e.setCancelled(true);
-                if(!parkourPlayer.isInPractice()){
-                    player.sendMessage(Component.text("不在練習模式中").color(NamedTextColor.RED));
-                }else{
-                    parkourPlayer.leavePractice();
-//                    player.sendMessage("已傳送回紀錄點並離開練習模式");
-                    player.sendMessage(Component.text("已傳送回紀錄點並離開練習模式").color(NamedTextColor.GREEN));
-                    ItemStack enterPracticeItem = new ItemStack(Material.ENDER_EYE);
-                    ItemMeta enterPracticeItemMeta = enterPracticeItem.getItemMeta();
-                    enterPracticeItemMeta.displayName(Component.text("進入練習模式").decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false));
-                    enterPracticeItem.setItemMeta(enterPracticeItemMeta);
-                    new BukkitRunnable(){
-
-                        @Override
-                        public void run() {
-                            player.getInventory().setItemInMainHand(enterPracticeItem);
-                        }
-                    }.runTaskLaterAsynchronously(plugin, 1L);
-                }
+                parkourPlayer.leavePractice();
         }
     }
     @org.bukkit.event.EventHandler
@@ -125,20 +113,26 @@ public class EventHandler implements Listener {
         }else{
             Location steppedLocation = e.getClickedBlock().getLocation().toBlockLocation();
             if(ParkourLocationManager.parkourPressures.containsKey(steppedLocation)){
+                e.setCancelled(false);
+                player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0F, 1.0F);
                 ParkourLocation parkourLocation = ParkourLocationManager.parkourPressures.get(steppedLocation);
                 parkourPlayer.playingParkourID = parkourLocation.getParkourID();
                 parkourPlayer.selectedSubParkourID = parkourLocation.getSteppedPressureSubParkourID(steppedLocation);
                 String messsageString = parkourLocation.getParkourMessage(parkourPlayer.selectedSubParkourID);
-                if(messsageString != null){
-                    Component message = MiniMessage.miniMessage().deserialize(messsageString);
-                    player.sendMessage(message);
+                TextColor parkourIdColor = ParkourLocationManager.getParkourIdColor(parkourPlayer.playingParkourID);
+                if(messsageString != null && !messsageString.isEmpty()){
+                    Component fullMessage = Component.text().append(Component.text(parkourPlayer.playingParkourID + ". ").color(parkourIdColor)).build();
+                    Component message = Component.text().append(MiniMessage.miniMessage().deserialize(messsageString)).build();
+                    player.sendMessage(fullMessage.append(message));
                 }
-                player.sendActionBar(
-                        Component.text("已選擇跑酷 " + parkourPlayer.playingParkourID + "-" + parkourPlayer.selectedSubParkourID).color(NamedTextColor.BLUE)
-                );
+                Component component = Component.text().append(Component.text("已選擇跑酷 ").color(NamedTextColor.BLUE)).build();
+                component = component.append(Component.text(parkourPlayer.playingParkourID + "-" + parkourPlayer.selectedSubParkourID).color(parkourIdColor));
+                player.sendActionBar(component);
             }else if(ParkourLocationManager.finishLocations.containsKey(steppedLocation)){
+                e.setCancelled(false);
                 ParkourLocation parkourLocation = ParkourLocationManager.finishLocations.get(steppedLocation);
                 parkourPlayer.addFinishedParkourID(parkourLocation.getParkourID());
+                player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1.0F, 1.0F);
             }
         }
     }

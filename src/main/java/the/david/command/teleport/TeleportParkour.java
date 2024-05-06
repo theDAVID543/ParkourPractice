@@ -34,7 +34,13 @@ public class TeleportParkour implements SubCommand {
                 return;
             }
             Location location = parkourLocation.getSubParkourLocation(subParkourID);
-            player.teleport(location);
+            if(location != null){
+                player.teleport(location);
+            }else{
+                player.sendMessage(
+                        Component.text("該子跑酷ID不存在").color(NamedTextColor.RED)
+                );
+            }
             return;
         }
         player.teleport(ParkourLocationManager.getParkourLocation(parkourID).getChooseMethodLocation());

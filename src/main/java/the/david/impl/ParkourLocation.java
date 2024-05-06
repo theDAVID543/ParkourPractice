@@ -58,10 +58,16 @@ public class ParkourLocation {
             ParkourLocationManager.addFinishPressure(this, finishLocation);
             DebugOutputHandler.sendDebugOutput("FinishPressure : " + finishLocation);
         }
+        String difficultyString = DataHandler.getString(configPath + ".Difficulty");
+        if(difficultyString != null){
+            this.difficulty = ParkourDifficulty.valueOf(difficultyString);
+            DebugOutputHandler.sendDebugOutput("difficulty : " + difficultyString);
+        }
     }
 
     public void setDifficulty(ParkourDifficulty difficulty) {
         this.difficulty = difficulty;
+        DataHandler.setString(configPath + ".Difficulty", difficulty.toString());
     }
     public void setParkourMessage(int subParkour, String parkourMessage) {
         subParkourMessages.put(subParkour, parkourMessage);
@@ -99,6 +105,7 @@ public class ParkourLocation {
     public void addParkourPressureLocation(int parkourSubID, Location location){
         parkourPressureLocations.put(parkourSubID, location);
         DataHandler.setLocation(configPath + ".Pressure." + parkourSubID, location);
+        DataHandler.setString(configPath + ".Message." + parkourSubID, "");
         ParkourLocationManager.addPressureParkourLocation(location, this);
     }
 

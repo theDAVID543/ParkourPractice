@@ -2,13 +2,19 @@ package the.david.impl;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.boss.BossBar;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 import the.david.handler.DataHandler;
 import the.david.manager.ParkourLocationManager;
 
@@ -17,8 +23,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static the.david.Main.plugin;
+
 public class ParkourPlayer{
-    Player player;
+    public Player player;
     Location practiceCheckpoint;
     boolean inPractice = false;
     BossBar bossBar;
@@ -26,9 +34,11 @@ public class ParkourPlayer{
     public int selectedSubParkourID;
     Set<Integer> finishedParkourIDs = new HashSet<>();
     String configPath;
-    public ParkourPlayer(Player player){
-        this.player = player;
-        configPath = "ParkourPlayers." + player.getUniqueId();
+    public ParkourPlayer(OfflinePlayer offlinePlayer){
+        if(offlinePlayer.isOnline()){
+            player = offlinePlayer.getPlayer();
+        }
+        configPath = "ParkourPlayers." + offlinePlayer.getUniqueId();
         loadData();
     }
     void loadData(){
@@ -39,18 +49,36 @@ public class ParkourPlayer{
         this.practiceCheckpoint = checkpointLocation;
         bossBar = Bukkit.createBossBar("練習模式", BarColor.WHITE, BarStyle.SOLID);
         bossBar.addPlayer(player);
-        performCommandAsOp("tag @s add practice");
     }
     public Location getPracticeCheckpoint(){
         return practiceCheckpoint;
     }
+    public int getParkourScore(){
+        return finishedParkourIDs.size();
+    }
     public void leavePractice(){
         if(inPractice){
-            player.teleport(practiceCheckpoint);
+            if(!player.teleport(practiceCheckpoint)){
+                player.sendMessage(Component.text("離開練習模式錯誤，請重新進入伺服器").color(NamedTextColor.RED));
+            }
             inPractice = false;
             practiceCheckpoint = null;
             bossBar.removeAll();
-            performCommandAsOp("tag @s remove practice");
+            player.sendMessage(Component.text("已傳送回紀錄點並離開練習模式").color(NamedTextColor.GREEN));
+            ItemStack enterPracticeItem = new ItemStack(Material.ENDER_EYE);
+            ItemMeta enterPracticeItemMeta = enterPracticeItem.getItemMeta();
+            enterPracticeItemMeta.displayName(Component.text("進入練習模式").decorate(TextDecoration.BOLD).decoration(TextDecoration.ITALIC, false));
+            enterPracticeItem.setItemMeta(enterPracticeItemMeta);
+            int handSlot = player.getInventory().getHeldItemSlot();
+            player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+            new BukkitRunnable(){
+                @Override
+                public void run() {
+                    player.getInventory().setItem(handSlot, enterPracticeItem);
+                }
+            }.runTaskLaterAsynchronously(plugin, 1L);
+        }else {
+            player.sendMessage(Component.text("不在練習模式中").color(NamedTextColor.RED));
         }
     }
     public boolean isInPractice(){
@@ -82,22 +110,12 @@ public class ParkourPlayer{
         finishedParkourIDs.add(id);
         List<Integer> list = new ArrayList<>(finishedParkourIDs);
         DataHandler.setIntegerList(configPath + ".FinishedParkour", list);
-    }
-    void performCommandAsOp(String command){
-        boolean isOp = player.isOp();
-        boolean sendCommandFeedback = Boolean.TRUE.equals(player.getWorld().getGameRuleValue(GameRule.SEND_COMMAND_FEEDBACK));
-        boolean logAdminCommands = Boolean.TRUE.equals(player.getWorld().getGameRuleValue(GameRule.LOG_ADMIN_COMMANDS));
-        try {
-            player.setOp(true);
-            player.getWorld().setGameRule(GameRule.SEND_COMMAND_FEEDBACK, false);
-            player.getWorld().setGameRule(GameRule.LOG_ADMIN_COMMANDS, false);
-            Bukkit.dispatchCommand(player, command);
-            player.getWorld().setGameRule(GameRule.SEND_COMMAND_FEEDBACK, sendCommandFeedback);
-            player.getWorld().setGameRule(GameRule.LOG_ADMIN_COMMANDS, logAdminCommands);
-            player.setOp(isOp);
-        } catch (Exception exc) {
-            player.setOp(isOp);
-            player.sendMessage("Error in op command!");
+        ParkourLocation nextParkourLocation = ParkourLocationManager.getParkourLocation(id + 1);
+        Component component = Component.text().append(Component.text("恭喜完成跑酷 " + id).color(TextColor.color(36, 237, 126))).build();
+        if(nextParkourLocation != null && nextParkourLocation.getChooseMethodLocation() != null){
+            component = component.append(Component.text(" 已傳送至跑酷 " + (id + 1)).color(TextColor.color(28, 225, 232)));
+            player.teleport(nextParkourLocation.getChooseMethodLocation());
         }
+        player.sendMessage(component);
     }
 }

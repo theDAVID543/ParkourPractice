@@ -24,7 +24,7 @@ public class SetupChooseLocation implements SubCommand {
             return;
         }
         Location location = player.getLocation();
-        if(Objects.equals(parsedArgs.get("toCenter"), "true")){
+        if(parsedArgs.get("toCenter") == null || Objects.equals(parsedArgs.get("toCenter"), "true")){
             location = LocationUtils.toParkourCenter(location, true);
         }
         ParkourLocationManager.addParkourLocation(parkourID, location);
