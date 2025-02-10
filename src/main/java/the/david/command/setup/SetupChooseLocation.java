@@ -11,25 +11,25 @@ import the.david.util.LocationUtils;
 import java.util.Map;
 import java.util.Objects;
 
-public class SetupChooseLocation implements SubCommand {
-    @Override
-    public void execute(Player player, Map<String, String> parsedArgs) {
-        int parkourID;
-        try {
-            parkourID = Integer.parseInt(parsedArgs.get("parkourID"));
-        }catch(NumberFormatException e){
-            player.sendMessage(
-                    Component.text("該跑酷ID不存在").color(NamedTextColor.RED)
-            );
-            return;
-        }
-        Location location = player.getLocation();
-        if(parsedArgs.get("toCenter") == null || Objects.equals(parsedArgs.get("toCenter"), "true")){
-            location = LocationUtils.toParkourCenter(location, true);
-        }
-        ParkourLocationManager.addParkourLocation(parkourID, location);
-        player.sendMessage(
-                Component.text("已設置跑酷選擇區位置" + LocationUtils.getLocationString(location)).color(NamedTextColor.GREEN)
-        );
-    }
+public class SetupChooseLocation implements SubCommand{
+	@Override
+	public void execute(Player player, Map<String, String> parsedArgs){
+		int parkourID;
+		try{
+			parkourID = Integer.parseInt(parsedArgs.get("parkourID"));
+		}catch(NumberFormatException e){
+			player.sendMessage(
+					Component.text("該跑酷ID不存在").color(NamedTextColor.RED)
+			);
+			return;
+		}
+		Location location = player.getLocation();
+		if(parsedArgs.get("toCenter") == null || Objects.equals(parsedArgs.get("toCenter"), "true")){
+			location = LocationUtils.toParkourCenter(location, true);
+		}
+		ParkourLocationManager.addParkourLocation(parkourID, location);
+		player.sendMessage(
+				Component.text("已設置跑酷選擇區位置" + LocationUtils.getLocationString(location)).color(NamedTextColor.GREEN)
+		);
+	}
 }

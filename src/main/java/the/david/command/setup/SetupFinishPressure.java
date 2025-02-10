@@ -11,25 +11,25 @@ import the.david.util.LocationUtils;
 
 import java.util.Map;
 
-public class SetupFinishPressure implements SubCommand {
-    @Override
-    public void execute(Player player, Map<String, String> parsedArgs) {
-        int parkourID;
-        try {
-            parkourID = Integer.parseInt(parsedArgs.get("parkourID"));
-        }catch(NumberFormatException e){
-            player.sendMessage(
-                    Component.text("該跑酷ID不存在").color(NamedTextColor.RED)
-            );
-            return;
-        }
-        Location location = player.getLocation().toBlockLocation();
-        location.setYaw(0);
-        location.setPitch(0);
-        ParkourLocation parkourLocation = ParkourLocationManager.getParkourLocation(parkourID);
-        parkourLocation.setFinishLocation(location.toBlockLocation());
-        player.sendMessage(
-                Component.text("已設置跑酷結束壓力版位置" + LocationUtils.getLocationString(location)).color(NamedTextColor.GREEN)
-        );
-    }
+public class SetupFinishPressure implements SubCommand{
+	@Override
+	public void execute(Player player, Map<String, String> parsedArgs){
+		int parkourID;
+		try{
+			parkourID = Integer.parseInt(parsedArgs.get("parkourID"));
+		}catch(NumberFormatException e){
+			player.sendMessage(
+					Component.text("該跑酷ID不存在").color(NamedTextColor.RED)
+			);
+			return;
+		}
+		Location location = player.getLocation().toBlockLocation();
+		location.setYaw(0);
+		location.setPitch(0);
+		ParkourLocation parkourLocation = ParkourLocationManager.getParkourLocation(parkourID);
+		parkourLocation.setFinishLocation(location.toBlockLocation());
+		player.sendMessage(
+				Component.text("已設置跑酷結束壓力版位置" + LocationUtils.getLocationString(location)).color(NamedTextColor.GREEN)
+		);
+	}
 }

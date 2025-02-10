@@ -11,18 +11,18 @@ import the.david.util.LocationUtils;
 
 import java.util.Map;
 
-public class SetupChoosePressure implements SubCommand {
-    @Override
-    public void execute(Player player, Map<String, String> parsedArgs) {
-        int parkourID = Integer.parseInt(parsedArgs.get("parkourID"));
-        int parkourSubID = Integer.parseInt(parsedArgs.get("SubParkourID"));
-        ParkourLocation parkourLocation = ParkourLocationManager.getParkourLocation(parkourID);
-        Location location = player.getLocation().toBlockLocation();
-        location.setYaw(0);
-        location.setPitch(0);
-        parkourLocation.addParkourPressureLocation(parkourSubID, location);
-        player.sendMessage(
-                Component.text("已設置跑酷選擇壓力版位置" + LocationUtils.getLocationString(location)).color(NamedTextColor.GREEN)
-        );
-    }
+public class SetupChoosePressure implements SubCommand{
+	@Override
+	public void execute(Player player, Map<String, String> parsedArgs){
+		int parkourID = Integer.parseInt(parsedArgs.get("parkourID"));
+		int parkourSubID = Integer.parseInt(parsedArgs.get("SubParkourID"));
+		ParkourLocation parkourLocation = ParkourLocationManager.getParkourLocation(parkourID);
+		Location location = player.getLocation().toBlockLocation();
+		location.setYaw(0);
+		location.setPitch(0);
+		parkourLocation.addParkourPressureLocation(parkourSubID, location);
+		player.sendMessage(
+				Component.text("已設置跑酷選擇壓力版位置" + LocationUtils.getLocationString(location)).color(NamedTextColor.GREEN)
+		);
+	}
 }
